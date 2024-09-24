@@ -9,7 +9,22 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers(); // Register controllers
 builder.Services.AddSingleton<PokemonService>(); // Register PokemonService
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        }
+    );
+});
+
 var app = builder.Build();
+
+// Use CORS
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
