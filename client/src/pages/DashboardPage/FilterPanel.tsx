@@ -5,19 +5,34 @@ import { useToggle } from 'src/hooks';
 interface IFilterPanelProps extends HTMLAttributes<HTMLDivElement> {}
 
 const FilterPanel: React.FC<IFilterPanelProps> = memo(({ className, ...rest }) => {
-  const [show, { toggle: toggleShow }] = useToggle(false);
+  const [show, { toggleOn: toggleOnShow, toggleOff: toggleOffShow }] = useToggle(false);
 
   return (
-    <div className={clsx('relative h-full w-64', className)} {...rest}>
-      <button className={clsx('h-10 w-10 rounded-full')} onClick={toggleShow}>
-        {show ? `<<` : `>>`}
+    <div className={clsx('absolute h-full w-full', className)} {...rest}>
+      {/* Show button */}
+      <button
+        className={clsx(
+          'fixed top-1 left-1 z-10 h-10 w-10 rounded-full bg-blue-700 text-white opacity-100 transition-all duration-150',
+          show && 'pointer-events-none opacity-0',
+        )}
+        onClick={toggleOnShow}>
+        {`>>`}
       </button>
+      {/* Underlay button */}
+      <button
+        className={clsx(
+          'pointer-events-none fixed left-0 top-0 h-full w-full transition-all duration-700',
+          show && 'pointer-events-auto bg-black/30',
+        )}
+        onClick={toggleOffShow}
+      />
+      {/* Filter content */}
       <div
         className={clsx(
-          'relative h-full w-64 transition-all duration-1000',
+          'relative h-full w-64 bg-white transition-all duration-700',
           show ? 'left-0 shadow-lg' : '-left-64 shadow-none',
         )}>
-        <span>FILTER PANEL HERE</span>
+        <span>Filter Panel</span>
       </div>
     </div>
   );
