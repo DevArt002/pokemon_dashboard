@@ -1,4 +1,11 @@
-import { fetchPokemons } from 'src/services/api';
+import {
+  fetchPokemonCountsPerGeneration,
+  fetchPokemonCountsPerType,
+  fetchPokemonGenerations,
+  fetchPokemonTotalSpecies,
+  fetchPokemonTypes,
+  fetchPokemons,
+} from 'src/services/api';
 import { useAppContext } from 'src/contexts';
 import { useCallback, useEffect } from 'react';
 
@@ -7,7 +14,7 @@ import { useCallback, useEffect } from 'react';
  * @returns void
  */
 export const usePokemonData = (): void => {
-  const { filterOptions, setPokemons } = useAppContext();
+  const { filterOptions, setPokemons, setSummary } = useAppContext();
 
   // Get pokemons
   const getPokemons = useCallback(async () => {
@@ -19,4 +26,29 @@ export const usePokemonData = (): void => {
   useEffect(() => {
     getPokemons();
   }, [getPokemons]);
+
+  // Get summary
+  const getSummary = useCallback(async () => {
+    const [totalSpecies, countsPerType, countsPerGeneration, types, generations] =
+      await Promise.all([
+        fetchPokemonTotalSpecies(),
+        fetchPokemonCountsPerType(),
+        fetchPokemonCountsPerGeneration(),
+        fetchPokemonTypes(),
+        fetchPokemonGenerations(),
+      ]);
+
+    setSummary({
+      totalSpecies,
+      countsPerType,
+      countsPerGeneration,
+      types,
+      generations,
+    });
+  }, [setSummary]);
+
+  // Get summary when component is mounted
+  useEffect(() => {
+    getSummary();
+  }, [getSummary]);
 };

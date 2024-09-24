@@ -1,11 +1,14 @@
 import React, { ReactNode, createContext, useContext, useState } from 'react';
-import { IFilterOptions, IPokemon } from 'src/types';
+import { DEFAULT_POKEMON_FILTER_OPTIONS, DEFAULT_POKEMON_SUMMARY } from 'src/constants';
+import { IFilterOptions, IPokemon, IPokemonsSummary } from 'src/types';
 
 export interface IAppContextProps {
   pokemons: IPokemon[];
+  summary: IPokemonsSummary;
   filterOptions: IFilterOptions;
   setPokemons: (pokemons: IPokemon[]) => void;
   setFilterOptions: (filterOptions: IFilterOptions) => void;
+  setSummary: (summary: IPokemonsSummary) => void;
 }
 
 interface AppContextProviderProps {
@@ -15,15 +18,20 @@ interface AppContextProviderProps {
 // Context provider
 export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => {
   const [pokemons, setPokemons] = useState<IPokemon[]>([]);
-  const [filterOptions, setFilterOptions] = useState<IFilterOptions>({});
+  const [filterOptions, setFilterOptions] = useState<IFilterOptions>(
+    DEFAULT_POKEMON_FILTER_OPTIONS,
+  );
+  const [summary, setSummary] = useState<IPokemonsSummary>(DEFAULT_POKEMON_SUMMARY);
 
   return (
     <AppContext.Provider
       value={{
         pokemons,
         filterOptions,
+        summary,
         setPokemons,
         setFilterOptions,
+        setSummary,
       }}>
       {children}
     </AppContext.Provider>
@@ -33,9 +41,11 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
 // Context
 export const AppContext = createContext<IAppContextProps>({
   pokemons: [],
-  filterOptions: {},
+  filterOptions: DEFAULT_POKEMON_FILTER_OPTIONS,
+  summary: DEFAULT_POKEMON_SUMMARY,
   setPokemons: () => {},
   setFilterOptions: () => {},
+  setSummary: () => {},
 });
 
 export const useAppContext = () => {

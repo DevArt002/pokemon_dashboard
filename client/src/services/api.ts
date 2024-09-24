@@ -34,3 +34,53 @@ export const fetchPokemons = async (options: IFilterOptions): Promise<IPokemon[]
 
   return response.data;
 };
+
+/**
+ * Fetches the total number of species from the API.
+ * @returns the total number of species
+ */
+export const fetchPokemonTotalSpecies = async (): Promise<number> => {
+  const response = await axios.get(`${API_BASE_URL}/api/pokemon/total-species`);
+
+  return response.data;
+};
+
+/**
+ * Fetches pokemon count per type from the API.
+ * @returns a dictionary with Pokemon types as keys and their respective counts as values
+ */
+export const fetchPokemonCountsPerType = async (): Promise<Record<string, number>> => {
+  const response = await axios.get(`${API_BASE_URL}/api/pokemon/counts-per-type`);
+
+  return response.data;
+};
+
+/**
+ * Fetches pokemon count per generation from the API.
+ * @returns a dictionary with Pokemon generations as keys and their respective counts as values
+ */
+export const fetchPokemonCountsPerGeneration = async (): Promise<Record<string, number>> => {
+  const response = await axios.get(`${API_BASE_URL}/api/pokemon/counts-per-generation`);
+
+  return response.data;
+};
+
+/**
+ * Fetches all unique Pokemon types from the API.
+ * @returns a list of all unique Pokemon types
+ */
+export const fetchPokemonTypes = async (): Promise<string[]> => {
+  const response = await axios.get(`${API_BASE_URL}/api/pokemon/types`);
+
+  return response.data;
+};
+
+/**
+ * Fetches all unique Pokemon generations from the API.
+ * @returns a list of all unique Pokemon generations
+ */
+export const fetchPokemonGenerations = async (): Promise<string[]> => {
+  const response = await axios.get(`${API_BASE_URL}/api/pokemon/generations`);
+
+  return response.data;
+};

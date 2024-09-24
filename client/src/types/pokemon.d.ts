@@ -33,3 +33,11 @@ export interface IFilterOptions {
   sort?: string;
   sortDirection?: 'asc' | 'desc';
 }
+
+export interface IPokemonsSummary {
+  totalSpecies: number;
+  countsPerType: Record<string, number>;
+  countsPerGeneration: Record<string, number>;
+  types: string[];
+  generations: string[];
+}
