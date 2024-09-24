@@ -5,48 +5,28 @@ namespace PokemonAPI.Services
 {
     public class PokemonService
     {
-        private List<Pokemon>? _pokemons = null;
+        public readonly List<Pokemon> pokemons;
 
         /*
-         * Get Pokemon data from JSON file.
-         *
-         * @return Pokemon list
+         * Constructor initializes Pokemon data.
          */
-        public List<Pokemon> GetPokemons()
+        public PokemonService()
         {
-            // If _pokemons is null, load pokemon.json file and deserialize it
-            if (_pokemons == null)
+            string jsonFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "pokemon.json");
+            if (!File.Exists(jsonFilePath))
             {
-                try
-                {
-                    string jsonFilePath = Path.Combine(
-                        AppContext.BaseDirectory,
-                        "Data",
-                        "pokemon.json"
-                    );
-
-                    if (!File.Exists(jsonFilePath))
-                    {
-                        throw new FileNotFoundException($"The file {jsonFilePath} was not found.");
-                    }
-
-                    string json = File.ReadAllText(jsonFilePath);
-                    JsonSerializerOptions options = new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                        AllowTrailingCommas = true,
-                    };
-                    _pokemons = JsonSerializer.Deserialize<List<Pokemon>>(json, options);
-                    _pokemons = _pokemons ?? new List<Pokemon>(); // Ensure that _pokemons is not null
-                }
-                catch (Exception ex)
-                {
-                    // Log the exception (logging logic not implemented here)
-                    throw new InvalidOperationException("Failed to load Pokémon data.", ex);
-                }
+                throw new FileNotFoundException($"The file {jsonFilePath} was not found.");
             }
 
-            return _pokemons;
+            string json = File.ReadAllText(jsonFilePath);
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                AllowTrailingCommas = true,
+            };
+
+            pokemons =
+                JsonSerializer.Deserialize<List<Pokemon>>(json, options) ?? new List<Pokemon>();
         }
 
         /*
@@ -56,7 +36,7 @@ namespace PokemonAPI.Services
          */
         public int GetTotalSpecies()
         {
-            return GetPokemons().Select(p => p.Name).Distinct().Count();
+            return pokemons.Select(p => p.Name).Distinct().Count();
         }
 
         /*
@@ -66,7 +46,7 @@ namespace PokemonAPI.Services
          */
         public Dictionary<string, int> GetCountsPerType()
         {
-            return GetPokemons()
+            return pokemons
                 .SelectMany(p => p.Types)
                 .GroupBy(t => t)
                 .ToDictionary(g => g.Key, g => g.Count());
@@ -79,9 +59,7 @@ namespace PokemonAPI.Services
          */
         public Dictionary<string, int> GetCountsPerGeneration()
         {
-            return GetPokemons()
-                .GroupBy(p => p.Generation)
-                .ToDictionary(g => g.Key, g => g.Count());
+            return pokemons.GroupBy(p => p.Generation).ToDictionary(g => g.Key, g => g.Count());
         }
 
         /*
@@ -91,7 +69,7 @@ namespace PokemonAPI.Services
          */
         public List<string> GetAllTypes()
         {
-            return GetPokemons()
+            return pokemons
                 .SelectMany(p => p.Types) // Flatten Type 1 and Type 2 into a single list
                 .Distinct()
                 .OrderBy(type => type) // Sort in ascending order
@@ -105,7 +83,7 @@ namespace PokemonAPI.Services
          */
         public List<string> GetAllGenerations()
         {
-            return GetPokemons()
+            return pokemons
                 .Select(p => p.Generation)
                 .Distinct()
                 .OrderBy(generation => generation) // Sort in ascending order
