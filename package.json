@@ -1,0 +1,13 @@
+{
+  "name": "pokemon_dashboard",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
+    "start:client": "cd client && npm run start",
+    "start:server": "cd server && dotnet run"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
