@@ -8,11 +8,11 @@ const FilterPanel: React.FC<IFilterPanelProps> = memo(({ className, ...rest }) =
   const [show, { toggleOn: toggleOnShow, toggleOff: toggleOffShow }] = useToggle(false);
 
   return (
-    <div className={clsx('absolute h-full w-full', className)} {...rest}>
+    <div className={clsx('pointer-events-none absolute h-full w-full', className)} {...rest}>
       {/* Show button */}
       <button
         className={clsx(
-          'fixed top-1 left-1 z-10 h-10 w-10 rounded-full bg-blue-700 text-white opacity-100 transition-all duration-150',
+          'pointer-events-auto fixed top-1 left-1 z-10 h-10 w-10 rounded-full bg-blue-700 text-white opacity-100 transition-all duration-150',
           show && 'pointer-events-none opacity-0',
         )}
         onClick={toggleOnShow}>
@@ -21,7 +21,7 @@ const FilterPanel: React.FC<IFilterPanelProps> = memo(({ className, ...rest }) =
       {/* Underlay button */}
       <button
         className={clsx(
-          'pointer-events-none fixed left-0 top-0 h-full w-full transition-all duration-700',
+          'fixed left-0 top-0 h-full w-full transition-all duration-700',
           show && 'pointer-events-auto bg-black/30',
         )}
         onClick={toggleOffShow}
