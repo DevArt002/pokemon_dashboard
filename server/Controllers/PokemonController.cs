@@ -31,7 +31,7 @@ namespace PokemonAPI.Controllers
          * @return A paginated list of Pokemons.
          */
         [HttpGet]
-        public ActionResult<List<Pokemon>> Get(
+        public ActionResult<IEnumerable<Pokemon>> Get(
             int page = 1,
             int pageSize = 25,
             string? name = null,
@@ -40,104 +40,119 @@ namespace PokemonAPI.Controllers
             string? generation = null,
             int? movesCount = null,
             string? sort = null,
-            string? sortDirection = "asc"
+            string sortDirection = "asc"
         )
         {
-            List<Pokemon> pokemons = _pokemonService.GetPokemons();
+            // Filter Pokemons
+            IEnumerable<Pokemon> pokemons = FilterPokemons(
+                name,
+                type1,
+                type2,
+                generation,
+                movesCount
+            );
 
-            // Filter by name
+            // Sort the filtered Pokemons
+            pokemons = SortPokemons(pokemons, sort, sortDirection);
+
+            // Pagination
+            IEnumerable<Pokemon> paginatedPokemons = pokemons
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+
+            return Ok(paginatedPokemons.ToList());
+        }
+
+        /**
+         * Filter the filtered Pokemon
+         */
+        private IEnumerable<Pokemon> FilterPokemons(
+            string? name,
+            string? type1,
+            string? type2,
+            string? generation,
+            int? movesCount
+        )
+        {
+            IQueryable<Pokemon> pokemons = _pokemonService.pokemons.AsQueryable();
+
             if (!string.IsNullOrWhiteSpace(name))
             {
-                pokemons = pokemons
-                    .Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                pokemons = pokemons.Where(p =>
+                    p.Name.Contains(name, StringComparison.OrdinalIgnoreCase)
+                );
             }
 
-            // Filter by Type 1
             if (!string.IsNullOrWhiteSpace(type1))
             {
-                pokemons = pokemons
-                    .Where(p => p.Types[0].Equals(type1, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                pokemons = pokemons.Where(p =>
+                    p.Types.Count > 0
+                    && p.Types[0].Equals(type1, StringComparison.OrdinalIgnoreCase)
+                );
             }
 
-            // Filter by Type 2
             if (!string.IsNullOrWhiteSpace(type2))
             {
-                pokemons = pokemons
-                    .Where(p =>
-                        p.Types.Count > 1
-                        && p.Types[1].Equals(type2, StringComparison.OrdinalIgnoreCase)
-                    )
-                    .ToList();
+                pokemons = pokemons.Where(p =>
+                    p.Types.Count > 1
+                    && p.Types[1].Equals(type2, StringComparison.OrdinalIgnoreCase)
+                );
             }
 
-            // Filter by generation
             if (!string.IsNullOrWhiteSpace(generation))
             {
-                pokemons = pokemons
-                    .Where(p => p.Generation.Equals(generation, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                pokemons = pokemons.Where(p =>
+                    p.Generation.Equals(generation, StringComparison.OrdinalIgnoreCase)
+                );
             }
 
-            // Filter by moves count
             if (movesCount.HasValue)
             {
-                pokemons = pokemons.Where(p => p.Moves.Count == movesCount.Value).ToList();
+                pokemons = pokemons.Where(p => p.Moves.Count == movesCount.Value);
             }
 
-            // Sort
+            return pokemons;
+        }
+
+        /**
+         * Sort the filtered Pokemon
+         */
+        private IEnumerable<Pokemon> SortPokemons(
+            IEnumerable<Pokemon> pokemons,
+            string? sort,
+            string sortDirection
+        )
+        {
             bool isAscending = string.Equals(
                 sortDirection,
                 "asc",
                 StringComparison.OrdinalIgnoreCase
             );
-            switch (sort?.ToLower())
+
+            return sort?.ToLower() switch
             {
-                case "number":
-                    pokemons = isAscending
-                        ? pokemons.OrderBy(p => p.Number).ToList()
-                        : pokemons.OrderByDescending(p => p.Number).ToList();
-                    break;
-                case "name":
-                    pokemons = isAscending
-                        ? pokemons.OrderBy(p => p.Name).ToList()
-                        : pokemons.OrderByDescending(p => p.Name).ToList();
-                    break;
-                case "type1":
-                    pokemons = isAscending
-                        ? pokemons.OrderBy(p => p.Types[0]).ToList()
-                        : pokemons.OrderByDescending(p => p.Types[0]).ToList();
-                    break;
-                case "type2":
-                    pokemons = isAscending
-                        ? pokemons.OrderBy(p => p.Types.Count > 1 ? p.Types[1] : "").ToList()
-                        : pokemons
-                            .OrderByDescending(p => p.Types.Count > 1 ? p.Types[1] : "")
-                            .ToList();
-                    break;
-                case "generation":
-                    pokemons = isAscending
-                        ? pokemons.OrderBy(p => p.Generation).ToList()
-                        : pokemons.OrderByDescending(p => p.Generation).ToList();
-                    break;
-                case "movescount":
-                    pokemons = isAscending
-                        ? pokemons.OrderBy(p => p.Moves.Count).ToList()
-                        : pokemons.OrderByDescending(p => p.Moves.Count).ToList();
-                    break;
-                default:
-                    // Default sorting can be handled here if needed
-                    break;
-            }
-
-            // Pagination
-            List<Pokemon> paginatedPokemons = pokemons
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            return Ok(paginatedPokemons);
+                "number" => isAscending
+                    ? pokemons.OrderBy(p => p.Number)
+                    : pokemons.OrderByDescending(p => p.Number),
+                "name" => isAscending
+                    ? pokemons.OrderBy(p => p.Name)
+                    : pokemons.OrderByDescending(p => p.Name),
+                "type1" => isAscending
+                    ? pokemons.OrderBy(p => p.Types.FirstOrDefault())
+                    : pokemons.OrderByDescending(p => p.Types.FirstOrDefault()),
+                "type2" => isAscending
+                    ? pokemons.OrderBy(p => p.Types.Count > 1 ? p.Types[1] : "")
+                    : pokemons.OrderByDescending(p => p.Types.Count > 1 ? p.Types[1] : ""),
+                "generation" => isAscending
+                    ? pokemons.OrderBy(p => p.Generation)
+                    : pokemons.OrderByDescending(p => p.Generation),
+                "movescount" => isAscending
+                    ? pokemons.OrderBy(p => p.Moves.Count)
+                    : pokemons.OrderByDescending(p => p.Moves.Count),
+                _ =>
+                    pokemons // Default case returns unsorted
+                ,
+            };
         }
 
         /*
@@ -148,8 +163,7 @@ namespace PokemonAPI.Controllers
         [HttpGet("total-species")]
         public ActionResult<int> GetTotalSpecies()
         {
-            int totalSpecies = _pokemonService.GetTotalSpecies();
-            return Ok(totalSpecies);
+            return Ok(_pokemonService.GetTotalSpecies());
         }
 
         /*
@@ -160,8 +174,7 @@ namespace PokemonAPI.Controllers
         [HttpGet("counts-per-type")]
         public ActionResult<Dictionary<string, int>> GetCountsPerType()
         {
-            Dictionary<string, int> counts = _pokemonService.GetCountsPerType();
-            return Ok(counts);
+            return Ok(_pokemonService.GetCountsPerType());
         }
 
         /*
@@ -172,8 +185,7 @@ namespace PokemonAPI.Controllers
         [HttpGet("counts-per-generation")]
         public ActionResult<Dictionary<string, int>> GetCountsPerGeneration()
         {
-            Dictionary<string, int> counts = _pokemonService.GetCountsPerGeneration();
-            return Ok(counts);
+            return Ok(_pokemonService.GetCountsPerGeneration());
         }
 
         /*
@@ -184,8 +196,7 @@ namespace PokemonAPI.Controllers
         [HttpGet("types")]
         public ActionResult<List<string>> GetAllTypes()
         {
-            var types = _pokemonService.GetAllTypes();
-            return Ok(types);
+            return Ok(_pokemonService.GetAllTypes());
         }
 
         /*
@@ -196,8 +207,7 @@ namespace PokemonAPI.Controllers
         [HttpGet("generations")]
         public ActionResult<List<string>> GetAllGenerations()
         {
-            var generations = _pokemonService.GetAllGenerations();
-            return Ok(generations);
+            return Ok(_pokemonService.GetAllGenerations());
         }
     }
 }
