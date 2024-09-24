@@ -139,5 +139,65 @@ namespace PokemonAPI.Controllers
 
             return Ok(paginatedPokemons);
         }
+
+        /*
+         * Gets the total number of unique Pokemon species.
+         *
+         * @return The total number of unique Pokemon species.
+         */
+        [HttpGet("total-species")]
+        public ActionResult<int> GetTotalSpecies()
+        {
+            int totalSpecies = _pokemonService.GetTotalSpecies();
+            return Ok(totalSpecies);
+        }
+
+        /*
+         * Gets the counts of Pokemon per type.
+         *
+         * @return A dictionary with Pokemon types as keys and their respective counts as values.
+         */
+        [HttpGet("counts-per-type")]
+        public ActionResult<Dictionary<string, int>> GetCountsPerType()
+        {
+            Dictionary<string, int> counts = _pokemonService.GetCountsPerType();
+            return Ok(counts);
+        }
+
+        /*
+         * Gets the counts of Pokemon per generation.
+         *
+         * @return A dictionary with generations as keys and their respective counts as values.
+         */
+        [HttpGet("counts-per-generation")]
+        public ActionResult<Dictionary<string, int>> GetCountsPerGeneration()
+        {
+            Dictionary<string, int> counts = _pokemonService.GetCountsPerGeneration();
+            return Ok(counts);
+        }
+
+        /*
+         * Gets all unique Pokemon types from the Pokemons.
+         *
+         * @return A list of unique types.
+         */
+        [HttpGet("types")]
+        public ActionResult<List<string>> GetAllTypes()
+        {
+            var types = _pokemonService.GetAllTypes();
+            return Ok(types);
+        }
+
+        /*
+         * Gets all unique generations from the Pokemons.
+         *
+         * @return A list of unique generations.
+         */
+        [HttpGet("generations")]
+        public ActionResult<List<string>> GetAllGenerations()
+        {
+            var generations = _pokemonService.GetAllGenerations();
+            return Ok(generations);
+        }
     }
 }
