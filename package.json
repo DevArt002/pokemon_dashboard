@@ -8,7 +8,8 @@
     "setup:server": "cd server && dotnet restore server.csproj",
     "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
     "start:client": "cd client && npm run start",
-    "start:server": "cd server && dotnet run"
+    "start:server": "cd server && dotnet run",
+    "start:server-watch": "cd server && dotnet watch run"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"
