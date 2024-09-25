@@ -1,11 +1,53 @@
 import clsx from 'clsx';
-import React, { HTMLAttributes, memo } from 'react';
+import React, { HTMLAttributes, memo, useCallback, useMemo } from 'react';
+import { SORT_SYMBOLS } from 'src/constants';
 import { useAppContext } from 'src/contexts';
 
 interface ITableViewProps extends HTMLAttributes<HTMLDivElement> {}
 
 const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
-  const { pokemons } = useAppContext();
+  const { pokemons, filterOptions, setFilterOptions } = useAppContext();
+
+  // TODO: It can be just constant.
+  // Headers data
+  const headers = useMemo(() => {
+    return [
+      { name: 'number', label: 'Number' },
+      { name: 'name', label: 'Name' },
+      { name: 'generation', label: 'Generation' },
+      { name: 'height', label: 'Height' },
+      { name: 'weight', label: 'Weight' },
+      { name: 'type1', label: 'Type 1' },
+      { name: 'type2', label: 'Type 2' },
+      { name: 'movesCount', label: 'Moves Count' },
+    ];
+  }, []);
+
+  // Handle header click
+  const onHeaderClick = useCallback(
+    (e: React.MouseEvent<HTMLTableCellElement>) => {
+      const { sort, sortDirection } = filterOptions;
+      const newSort = e.currentTarget.getAttribute('data-name');
+      const newFilterOptions = { ...filterOptions };
+
+      // Toggle sort direction in case of same column
+      if (newSort === sort) {
+        if (sortDirection === 'asc') {
+          newFilterOptions.sortDirection = 'desc';
+        } else {
+          newFilterOptions.sortDirection = 'asc';
+        }
+      }
+      // Reset sort params in case of different column
+      else {
+        newFilterOptions.sort = newSort || undefined;
+        newFilterOptions.sortDirection = 'asc';
+      }
+
+      setFilterOptions(newFilterOptions);
+    },
+    [filterOptions, setFilterOptions],
+  );
 
   return (
     <div
@@ -18,30 +60,25 @@ const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
         <thead className="sticky top-0 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
           {/* thead is sticky */}
           <tr>
-            <th scope="col" className="px-6 py-3">
-              Number
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Name
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Generation
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Height
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Weight
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Type 1
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Type 2
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Moves count
-            </th>
+            {headers.map(({ name, label }) => {
+              const { sort, sortDirection } = filterOptions;
+              let sortSymbol;
+
+              if (sort === name && sortDirection) {
+                sortSymbol = SORT_SYMBOLS[sortDirection];
+              }
+
+              return (
+                <th
+                  key={`dashboard-header-${name}`}
+                  scope="col"
+                  className="cursor-pointer px-6 py-3"
+                  data-name={name}
+                  onClick={onHeaderClick}>
+                  {label} {sortSymbol}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>

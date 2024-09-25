@@ -10,6 +10,7 @@ const SummaryPanel: React.FC<ISummaryPanelProps> = memo(({ className, ...rest })
   const { summary } = useAppContext();
   const [show, { toggleOn: toggleOnShow, toggleOff: toggleOffShow }] = useToggle(false);
 
+  // Counts per type and generation
   const summaryCountPerX = useMemo(
     () => [
       { label: 'Counts per Pokemon Type', value: summary.countsPerType },
