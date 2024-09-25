@@ -11,6 +11,7 @@ export const fetchPokemons = async (options: IFilterOptions): Promise<IPokemon[]
   const {
     page = 1,
     pageSize = 25,
+    number,
     name,
     type1,
     type2,
@@ -22,6 +23,7 @@ export const fetchPokemons = async (options: IFilterOptions): Promise<IPokemon[]
 
   let url = `${API_BASE_URL}/api/pokemon?page=${page}&pageSize=${pageSize}`;
 
+  number && (url += `&number=${number}`);
   name && (url += `&name=${name}`);
   type1 && (url += `&type1=${type1}`);
   type2 && (url += `&type2=${type2}`);
