@@ -23,8 +23,8 @@ export interface IEvolution {
 }
 
 export interface IFilterOptions {
-  page?: number;
-  pageSize?: number;
+  page: number;
+  pageSize: number;
   number?: number;
   name?: string;
   type1?: string;

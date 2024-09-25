@@ -6,7 +6,7 @@ import { useAppContext } from 'src/contexts';
 interface ITableViewProps extends HTMLAttributes<HTMLDivElement> {}
 
 const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
-  const { pokemons, filterOptions, setFilterOptions } = useAppContext();
+  const { pokemons, filterOptions, maxPage, setFilterOptions } = useAppContext();
 
   // TODO: It can be just constant.
   // Headers data
@@ -23,8 +23,21 @@ const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
     ];
   }, []);
 
+  // TODO: When filtering, this quickPages should be dynamic. Currently it's not changing due to maxPage depends on static total species(1025)
+  // Quick pages(up to 5 pages)
+  const quickPages = useMemo(() => {
+    const currentPage = filterOptions.page;
+    const pages: number[] = [];
+    for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+      if (i > 0 && i <= maxPage) {
+        pages.push(i);
+      }
+    }
+    return pages;
+  }, [maxPage, filterOptions]);
+
   // Handle header click
-  const onHeaderClick = useCallback(
+  const handleHeaderClick = useCallback(
     (e: React.MouseEvent<HTMLTableCellElement>) => {
       const { sort, sortDirection } = filterOptions;
       const newSort = e.currentTarget.getAttribute('data-name');
@@ -49,6 +62,24 @@ const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
     [filterOptions, setFilterOptions],
   );
 
+  // Handle pagination to next page
+  const handleGoToNextPage = useCallback(() => {
+    setFilterOptions({ ...filterOptions, page: Math.min(maxPage, filterOptions.page + 1) });
+  }, [filterOptions, setFilterOptions, maxPage]);
+
+  // Handle pagination to previous page
+  const handleGoToPrevPage = useCallback(() => {
+    setFilterOptions({ ...filterOptions, page: Math.max(1, filterOptions.page - 1) });
+  }, [filterOptions, setFilterOptions]);
+
+  const handleGoToSpecificPage = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      const pageNumber = Number(e.currentTarget.value);
+      setFilterOptions({ ...filterOptions, page: pageNumber });
+    },
+    [filterOptions, setFilterOptions],
+  );
+
   return (
     <div
       className={clsx(
@@ -56,8 +87,35 @@ const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
         className,
       )}
       {...rest}>
+      {/* Pagination */}
+      <div className="z-10 mb-2 flex justify-center gap-2">
+        <button
+          className="rounded-md bg-blue-500 px-2 py-1 text-xs text-white"
+          onClick={handleGoToPrevPage}>
+          Prev
+        </button>
+        {/* Quick pages (up to 5 pages) */}
+        {quickPages.map((page, i) => (
+          <button
+            key={`dashboard-pagination-${i}`}
+            className={clsx(
+              'rounded-md px-2 py-1 text-xs text-white',
+              page === filterOptions.page ? 'bg-blue-500' : 'bg-gray-500',
+            )}
+            value={page}
+            onClick={handleGoToSpecificPage}>
+            {page}
+          </button>
+        ))}
+        <button
+          className="rounded-md bg-blue-500 px-2 py-1 text-xs text-white"
+          onClick={handleGoToNextPage}>
+          Next
+        </button>
+      </div>
+      {/* Table */}
       <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
-        <thead className="sticky top-0 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+        <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
           {/* thead is sticky */}
           <tr>
             {headers.map(({ name, label }) => {
@@ -74,7 +132,7 @@ const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
                   scope="col"
                   className="cursor-pointer px-6 py-3"
                   data-name={name}
-                  onClick={onHeaderClick}>
+                  onClick={handleHeaderClick}>
                   {label} {sortSymbol}
                 </th>
               );
