@@ -2,10 +2,12 @@ import clsx from 'clsx';
 import React, { HTMLAttributes, memo, useCallback, useMemo } from 'react';
 import { SORT_SYMBOLS } from 'src/constants';
 import { useAppContext } from 'src/contexts';
+import { useHistory } from 'react-router-dom';
 
 interface ITableViewProps extends HTMLAttributes<HTMLDivElement> {}
 
 const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
+  const history = useHistory();
   const { pokemons, filterOptions, maxPage, setFilterOptions } = useAppContext();
 
   // TODO: It can be just constant.
@@ -72,12 +74,23 @@ const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
     setFilterOptions({ ...filterOptions, page: Math.max(1, filterOptions.page - 1) });
   }, [filterOptions, setFilterOptions]);
 
+  // Handle pagination to specific page
   const handleGoToSpecificPage = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       const pageNumber = Number(e.currentTarget.value);
       setFilterOptions({ ...filterOptions, page: pageNumber });
     },
     [filterOptions, setFilterOptions],
+  );
+
+  // Handle go to pokemon details page
+  const handleGoToPokemonDetails = useCallback(
+    (e: React.MouseEvent<HTMLTableRowElement>) => {
+      const pokemonNumber = e.currentTarget.getAttribute('data-number');
+
+      history.push(`/pokemon/${pokemonNumber}`);
+    },
+    [history],
   );
 
   return (
@@ -143,7 +156,9 @@ const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
           {pokemons.map(({ number, name, generation, height, weight, types, moves }) => (
             <tr
               key={`pokemon-${number}-${name}`}
-              className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
+              className="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+              data-number={number}
+              onClick={handleGoToPokemonDetails}>
               <th
                 scope="row"
                 className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">

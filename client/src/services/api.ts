@@ -86,3 +86,35 @@ export const fetchPokemonGenerations = async (): Promise<string[]> => {
 
   return response.data;
 };
+
+/**
+ * Fetches pokemon by number from the API.
+ * @param number the number of the pokemon
+ * @returns a pokemon
+ */
+export const fetchPokemonByNumber = async (number: number): Promise<IPokemon | null> => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/pokemon/by-number/${number}`);
+
+    return response.data;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
+/**
+ * Fetches pokemon by name from the API.
+ * @param name the name of the pokemon
+ * @returns a pokemon
+ */
+export const fetchPokemonByName = async (name: string): Promise<IPokemon | null> => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/pokemon/by-name/${name}`);
+
+    return response.data;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
