@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { IPokemon } from 'src/types';
 import { Link, useParams } from 'react-router-dom';
+import { LoadingSpinner } from 'src/components';
 import { fetchPokemonByName, fetchPokemonByNumber } from 'src/services/api';
 import { useAppContext } from 'src/contexts';
 
 export const PokemonDetailsPage = () => {
-  const { pokemons } = useAppContext();
+  const { loading, pokemons, toggleOnLoading, toggleOffLoading } = useAppContext();
   const { number } = useParams<{ number: string }>();
   const [pokemon, setPokemon] = useState<IPokemon | null>();
   const [evolutions, setEvolutions] = useState<{
@@ -19,6 +20,7 @@ export const PokemonDetailsPage = () => {
   // Get pokemon by number
   {
     const getPokemon = useCallback(async () => {
+      toggleOnLoading();
       const pokemonNumber = parseInt(number ?? '');
 
       // Try to search in global state first.
@@ -30,7 +32,8 @@ export const PokemonDetailsPage = () => {
       }
 
       setPokemon(pokemon);
-    }, [pokemons, number]);
+      toggleOffLoading();
+    }, [toggleOnLoading, number, pokemons, toggleOffLoading]);
 
     useEffect(() => {
       getPokemon();
@@ -65,7 +68,9 @@ export const PokemonDetailsPage = () => {
     }, [getEveolutions]);
   }
 
-  return (
+  return loading ? (
+    <LoadingSpinner />
+  ) : (
     <div className="flex h-full w-full flex-col items-center p-4">
       <div className="flex items-center">
         <p className="m-6 text-3xl font-bold">

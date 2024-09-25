@@ -14,13 +14,16 @@ import { useCallback, useEffect } from 'react';
  * @returns void
  */
 export const usePokemonData = (): void => {
-  const { filterOptions, setPokemons, setSummary } = useAppContext();
+  const { filterOptions, setPokemons, setSummary, toggleOnLoading, toggleOffLoading } =
+    useAppContext();
 
   // Get pokemons
   const getPokemons = useCallback(async () => {
+    toggleOnLoading();
     const pokemons = await fetchPokemons(filterOptions);
     setPokemons(pokemons);
-  }, [filterOptions, setPokemons]);
+    toggleOffLoading();
+  }, [filterOptions, setPokemons, toggleOffLoading, toggleOnLoading]);
 
   // Get pokemons whenever filter options change
   useEffect(() => {

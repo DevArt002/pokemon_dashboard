@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React, { HTMLAttributes, memo, useCallback, useMemo } from 'react';
+import { LoadingSpinner } from 'src/components';
 import { SORT_SYMBOLS } from 'src/constants';
 import { useAppContext } from 'src/contexts';
 import { useHistory } from 'react-router-dom';
@@ -8,7 +9,7 @@ interface ITableViewProps extends HTMLAttributes<HTMLDivElement> {}
 
 const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
   const history = useHistory();
-  const { pokemons, filterOptions, maxPage, setFilterOptions } = useAppContext();
+  const { loading, pokemons, filterOptions, maxPage, setFilterOptions } = useAppContext();
 
   // TODO: It can be just constant.
   // Headers data
@@ -93,7 +94,9 @@ const TableView: React.FC<ITableViewProps> = memo(({ className, ...rest }) => {
     [history],
   );
 
-  return (
+  return loading ? (
+    <LoadingSpinner />
+  ) : (
     <div
       className={clsx(
         'relative h-full w-full overflow-auto px-4 pb-8 shadow-md sm:rounded-lg',
