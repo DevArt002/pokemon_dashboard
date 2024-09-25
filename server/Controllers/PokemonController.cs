@@ -21,6 +21,7 @@ namespace PokemonAPI.Controllers
          *
          * @param page: The page number for pagination (default: 1).
          * @param pageSize: The number of Pokemons per page (default: 25).
+         * @param number: Optional filter by Pokemon number.
          * @param name: Optional filter by Pokemon name.
          * @param type1: Optional filter by 1st Pokemon type.
          * @param type2: Optional filter by 2nd Pokemon type.
@@ -34,6 +35,7 @@ namespace PokemonAPI.Controllers
         public ActionResult<IEnumerable<Pokemon>> Get(
             int page = 1,
             int pageSize = 25,
+            int? number = null,
             string? name = null,
             string? type1 = null,
             string? type2 = null,
@@ -45,6 +47,7 @@ namespace PokemonAPI.Controllers
         {
             // Filter Pokemons
             IEnumerable<Pokemon> pokemons = FilterPokemons(
+                number,
                 name,
                 type1,
                 type2,
@@ -67,6 +70,7 @@ namespace PokemonAPI.Controllers
          * Filter the filtered Pokemon
          */
         private IEnumerable<Pokemon> FilterPokemons(
+            int? number,
             string? name,
             string? type1,
             string? type2,
@@ -75,6 +79,11 @@ namespace PokemonAPI.Controllers
         )
         {
             IQueryable<Pokemon> pokemons = _pokemonService.pokemons.AsQueryable();
+
+            if (number.HasValue)
+            {
+                pokemons = pokemons.Where(p => p.Number == number.Value);
+            }
 
             if (!string.IsNullOrWhiteSpace(name))
             {
