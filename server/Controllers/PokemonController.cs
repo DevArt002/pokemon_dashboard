@@ -149,6 +149,12 @@ namespace PokemonAPI.Controllers
                 "movescount" => isAscending
                     ? pokemons.OrderBy(p => p.Moves.Count)
                     : pokemons.OrderByDescending(p => p.Moves.Count),
+                "height" => isAscending
+                    ? pokemons.OrderBy(p => p.Height)
+                    : pokemons.OrderByDescending(p => p.Height),
+                "weight" => isAscending
+                    ? pokemons.OrderBy(p => p.Weight)
+                    : pokemons.OrderByDescending(p => p.Weight),
                 _ =>
                     pokemons // Default case returns unsorted
                 ,
