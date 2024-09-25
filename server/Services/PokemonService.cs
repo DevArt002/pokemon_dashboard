@@ -89,5 +89,27 @@ namespace PokemonAPI.Services
                 .OrderBy(generation => generation) // Sort in ascending order
                 .ToList();
         }
+
+        /*
+         * Gets a Pokemon by number.
+         *
+         * @return The Pokemon if found, otherwise null.
+         */
+        public Pokemon? GetPokemonByNumber(int number)
+        {
+            return pokemons.FirstOrDefault(p => p.Number == number);
+        }
+
+        /*
+         * Gets a Pokemon by name.
+         *
+         * @return The Pokemon if found, otherwise null.
+         */
+        public Pokemon? GetPokemonByName(string name)
+        {
+            return pokemons.FirstOrDefault(p =>
+                p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
+            );
+        }
     }
 }

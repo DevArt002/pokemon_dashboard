@@ -224,5 +224,39 @@ namespace PokemonAPI.Controllers
         {
             return Ok(_pokemonService.GetAllGenerations());
         }
+
+        /*
+         * Gets a Pokemon by number.
+         *
+         * @return The Pokemon if found, otherwise null.
+         */
+        [HttpGet("by-number/{number}")]
+        public ActionResult<Pokemon?> GetPokemonByNumber(int number)
+        {
+            Pokemon? pokemon = _pokemonService.GetPokemonByNumber(number);
+            if (pokemon == null)
+            {
+                return NotFound($"Pokemon with number {number} not found.");
+            }
+
+            return Ok(pokemon);
+        }
+
+        /*
+         * Gets a Pokemon by name.
+         *
+         * @return The Pokemon if found, otherwise null.
+         */
+        [HttpGet("by-name/{name}")]
+        public ActionResult<Pokemon?> GetPokemonByName(string name)
+        {
+            Pokemon? pokemon = _pokemonService.GetPokemonByName(name);
+            if (pokemon == null)
+            {
+                return NotFound($"Pokemon with name {name} not found.");
+            }
+
+            return Ok(pokemon);
+        }
     }
 }
